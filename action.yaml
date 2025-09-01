@@ -1,0 +1,44 @@
+name: "Check Previous Workflow Failure"
+description: "Check if the previous run of a workflow failed, and how long ago it failed."
+author: "Micah Rus"
+inputs:
+  workflow_file:
+    description: "Workflow file name to check (e.g. build.yml)"
+    required: true
+outputs:
+  status:
+    description: "Conclusion of the previous workflow run (success, failure, cancelled, etc.)"
+    value: ${{ steps.get_run.outputs.status }}
+  failed_duration_seconds:
+    description: "Number of seconds since the last failed run (0 if not failed)."
+    value: ${{ steps.get_run.outputs.failed_duration_seconds }}
+runs:
+  using: "composite"
+  steps:
+    - name: Get previous workflow run
+      id: get_run
+      shell: bash
+      run: |
+        RESPONSE=$(gh api repos/${{ github.repository }}/actions/workflows/${{ inputs.workflow_file }}/runs \
+          --jq '.workflow_runs[1]')
+
+        if [ -z "$RESPONSE" ]; then
+          echo "status=none" >> $GITHUB_OUTPUT
+          echo "failed_duration_seconds=0" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        STATUS=$(echo "$RESPONSE" | jq -r '.conclusion')
+        UPDATED_AT=$(echo "$RESPONSE" | jq -r '.updated_at')
+
+        echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+        if [ "$STATUS" = "failure" ]; then
+          NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          FAILED_SECONDS=$(( $(date -d "$NOW" +%s) - $(date -d "$UPDATED_AT" +%s) ))
+          echo "failed_duration_seconds=$FAILED_SECONDS" >> $GITHUB_OUTPUT
+        else
+          echo "failed_duration_seconds=0" >> $GITHUB_OUTPUT
+        fi
+      env:
+        GH_TOKEN: ${{ github.token }}
