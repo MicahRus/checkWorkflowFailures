@@ -6,7 +6,7 @@ A GitHub Action that checks whether a targeted workflow has been in a failed sta
 
 - 🔍 **Workflow Failure Detection**: Identifies workflows that have been failing for extended periods
 - ⏰ **Time-based Analysis**: Checks if failures have persisted for 7 days or more
-- 🎯 **Flexible Targeting**: Can check any workflow in any repository
+- 🎯 **Flexible Targeting**: Can check any workflow in any repository and branch
 - 📊 **Configurable Scope**: Adjustable number of workflow runs to analyze
 - 🚀 **Easy Integration**: Simple setup with minimal configuration required
 
@@ -23,10 +23,10 @@ Input          | Description                            | Required | Default
 -------------- | -------------------------------------- | -------- | ------------------------
 `workflow_id`  | The workflow to check (filename or ID) | ✅ Yes    | `release.yml`
 `github_token` | GitHub token for API access            | ✅ Yes    | `${{ github.token }}`
+`branch`       | The branch to check                    | ❌ No     | `main`
 `per_page`     | Number of workflow runs to check       | ❌ No     | `50`
 `owner`        | Repository owner                       | ❌ No     | Current repository owner
 `repo`         | Repository name                        | ❌ No     | Current repository
-`commit_sha`   | Specific commit to check               | ❌ No     | Current commit SHA
 
 ## Outputs
 
@@ -54,6 +54,7 @@ jobs:
         uses: MicahRus/check-workflow-failures@v0.0.0
         with:
           workflow_id: 'release.yml'
+          branch: 'main'
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Handle Persistent Failures
@@ -80,6 +81,7 @@ jobs:
         uses: MicahRus/check-workflow-failures@v0.0.0
         with:
           workflow_id: 'release.yml'
+          branch: 'main'
           github_token: ${{ secrets.GITHUB_TOKEN }}
           per_page: 100
           owner: 'my-org'
@@ -92,6 +94,7 @@ jobs:
         uses: MicahRus/check-workflow-failures@v0.0.0
         with:
           workflow_id: 'test.yml'
+          branch: 'develop'
           github_token: ${{ secrets.GITHUB_TOKEN }}
           per_page: 25
 ```
@@ -134,9 +137,40 @@ jobs: check-failures: runs-on: ubuntu-latest steps:
           SLACK_FOOTER: Slack Alert
 ```
 
+### Branch-Specific Example
+
+```yaml
+name: Monitor Different Branches
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'  # Every 12 hours
+
+jobs:
+  check-main-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Main Branch Workflow
+        uses: MicahRus/check-workflow-failures@v0.0.0
+        with:
+          workflow_id: 'deploy.yml'
+          branch: 'main'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  check-develop-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Develop Branch Workflow
+        uses: MicahRus/check-workflow-failures@v0.0.0
+        with:
+          workflow_id: 'deploy.yml'
+          branch: 'develop'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+```
+
 ## How It Works
 
-1. **Workflow Analysis**: The action fetches the specified number of recent workflow runs
+1. **Workflow Analysis**: The action fetches the specified number of recent workflow runs from the specified branch
 2. **Failure Detection**: It examines each run's conclusion and start time
 3. **Time Calculation**: If a workflow has failed, it checks if the failure has persisted for 7 days or more
 4. **Output Generation**: Returns `true` if there's a persistent failure, `false` otherwise

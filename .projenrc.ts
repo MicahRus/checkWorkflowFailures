@@ -18,6 +18,7 @@ const project = new typescript.TypeScriptProject({
     'Action',
     'Workflow',
     'Failures',
+    'Monitoring',
   ],
   repository: 'https://github.com/MicahRus/check-workflow-failures.git',
   packageManager: javascript.NodePackageManager.PNPM,
@@ -138,8 +139,8 @@ new YamlFile(project, 'action.yml', {
         description: 'The GitHub token (if not provided, the environment variable GITHUB_TOKEN will be used instead)',
         required: true,
       },
-      commit_sha: {
-        description: 'The commit sha to check and see if it is active (if not provided, the current commit id will be used)',
+      branch: {
+        description: 'The branch to check (if not provided, "main" will be used)',
         required: false,
       },
     },

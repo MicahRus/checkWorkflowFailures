@@ -54,6 +54,7 @@
     "Action",
     "Failures",
     "GitHub",
+    "Monitoring",
     "Typescript",
     "Workflow",
     "projen"
