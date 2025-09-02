@@ -1,0 +1,113 @@
+import { typescript, javascript, TextFile, YamlFile } from 'projen';
+
+const nodeVersion = '20';
+const authorName = 'Micah Rus';
+const majorVersion = 1;
+
+const project = new typescript.TypeScriptProject({
+  name: 'check-workflow-failures',
+  projenrcTs: true,
+  authorName,
+  authorEmail: 'rus.micah@gmail.com',
+  defaultReleaseBranch: 'main',
+  description: 'A GitHub action to check if a workflow has been in a failed state for a set period of time',
+  keywords: [
+    'projen',
+    'Typescript',
+    'GitHub',
+    'Action',
+    'Workflow',
+    'Failures',
+  ],
+  repository: 'https://github.com/MicahRus/check-workflow-failures.git',
+  packageManager: javascript.NodePackageManager.PNPM,
+  npmAccess: javascript.NpmAccess.PUBLIC,
+  deps: [
+    '@actions/core',
+    '@actions/github',
+  ],
+  devDeps: [
+    '@types/babel__core',
+    '@vercel/ncc',
+  ],
+  workflowNodeVersion: nodeVersion,
+  publishTasks: false,
+  jest: false,
+  sampleCode: false,
+  tsconfig: {
+    compilerOptions: {
+      target: 'es6',
+    },
+  },
+  majorVersion,
+  autoApproveOptions: {
+    allowedUsernames: ['MicahRus'],
+  },
+  autoApproveUpgrades: true,
+  releaseFailureIssue: true,
+});
+
+project.postCompileTask.exec('ncc build --source-map --out action');
+
+project.release?.publisher.addGitHubPostPublishingSteps({
+  name: 'Moving tag',
+  env: {
+    GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}',
+    GITHUB_REPOSITORY: '${{ github.repository }}',
+    GITHUB_REF: '${{ github.ref }}',
+  },
+  run: `gh release edit v${majorVersion} -R $GITHUB_REPOSITORY --target $GITHUB_REF`,
+});
+
+new TextFile(project, '.nvmrc', {
+  lines: [nodeVersion],
+});
+
+new YamlFile(project, 'action.yml', {
+  obj: {
+    name: 'Has Active Workflow Failure',
+    description: 'Checks whether the targeted workflow run has been in a failed state for a set period of time',
+    author: authorName,
+    branding: {
+      icon: 'package',
+      color: 'blue',
+    },
+    inputs: {
+      frequency: {
+        description: 'The frequency of the check (if not provided, it will check every 7 days)',
+        required: false,
+      },
+      owner: {
+        description: 'The owner of the repository (if not provided, the current owner will be used)',
+        required: false,
+      },
+      repo: {
+        description: 'The repository name (if not provided, the current repository will be used)',
+        required: false,
+      },
+      workflow_id: {
+        description: 'The workflow that you want to check IE Release.yml',
+        required: true,
+      },
+      github_token: {
+        description: 'The GitHub token (if not provided, the environment variable GITHUB_TOKEN will be used instead)',
+        required: true,
+      },
+      commit_sha: {
+        description: 'The commit sha to check and see if it is active (if not provided, the current commit id will be used)',
+        required: false,
+      },
+    },
+    outputs: {
+      has_active_failure: {
+        description: 'True/False to represent if the workflow has been in a failed state for a set period of time',
+      },
+    },
+    runs: {
+      using: 'node20',
+      main: 'action/index.js',
+    },
+  },
+});
+
+project.synth();
