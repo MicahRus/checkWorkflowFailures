@@ -59,7 +59,7 @@ new YamlFile(project, '.github/workflows/check-workflow-failures.yml', {
     },
 
     on: {
-      workflow_dispatch: {}, // keep manual trigger
+      workflow_dispatch: {},
       schedule: [
         {
           // GitHub Actions cron uses UTC, AEST is UTC+10
@@ -86,7 +86,7 @@ new YamlFile(project, '.github/workflows/check-workflow-failures.yml', {
           },
           {
             name: 'Fail if previous failure',
-            if: 'steps.check_failures.outputs.has_previous_failure == \"true\"',
+            if: 'steps.check_failures.outputs.has_previous_failure == \'true\'',
             run: 'echo "❌ Previous workflow failure detected" && exit 1',
           },
         ],
