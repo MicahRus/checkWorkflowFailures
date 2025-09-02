@@ -73,7 +73,7 @@ new YamlFile(project, '.github/workflows/check-workflow-failures.yml', {
           },
           {
             name: 'Run CheckWorkflowFailures Action',
-            uses: 'MicahRus/checkWorkflowFailures@v1.0.0',
+            uses: 'MicahRus/checkWorkflowFailures@v1',
           },
         ],
       },
