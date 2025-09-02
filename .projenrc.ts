@@ -49,15 +49,15 @@ const project = new typescript.TypeScriptProject({
 
 project.postCompileTask.exec('ncc build --source-map --out action');
 
-project.release?.publisher.addGitHubPostPublishingSteps({
-  name: 'Moving tag',
-  env: {
-    GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}',
-    GITHUB_REPOSITORY: '${{ github.repository }}',
-    GITHUB_REF: '${{ github.ref }}',
-  },
-  run: `gh release edit v${majorVersion} -R $GITHUB_REPOSITORY --target $GITHUB_REF`,
-});
+// project.release?.publisher.addGitHubPostPublishingSteps({
+//   name: 'Moving tag',
+//   env: {
+//     GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}',
+//     GITHUB_REPOSITORY: '${{ github.repository }}',
+//     GITHUB_REF: '${{ github.ref }}',
+//   },
+//   run: `gh release edit v${majorVersion} -R $GITHUB_REPOSITORY --target $GITHUB_REF`,
+// });
 
 new TextFile(project, '.nvmrc', {
   lines: [nodeVersion],
