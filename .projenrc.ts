@@ -57,7 +57,6 @@ new YamlFile(project, '.github/workflows/check-workflow-failures.yml', {
       actions: 'read',
       contents: 'read',
     },
-
     on: {
       workflow_dispatch: {},
       schedule: [

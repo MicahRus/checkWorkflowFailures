@@ -19,6 +19,7 @@ export async function checkWorkflowStatus(): Promise<void> {
       if (workflowRun.conclusion === 'success') {
         return setOutput('has_previous_failure', 'false');
       }
+
       if (!workflowRun.run_started_at) {
         continue;
       }
@@ -30,7 +31,6 @@ export async function checkWorkflowStatus(): Promise<void> {
 
     return setOutput('has_previous_failure', 'false');
   } catch (err) {
-    console.log('error', err);
     console.log('error', JSON.stringify(err));
     return setFailed('Failed to check the workflow status');
   }
@@ -40,7 +40,7 @@ function isOlderThan7Days(dateString: string | Date): boolean {
   // 7 days in milliseconds
   const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
 
-  return (new Date().getTime() - new Date(dateString).getTime()) > sevenDaysMs;
+  return (new Date().getTime() - new Date(dateString).getTime()) >= sevenDaysMs;
 }
 
 function getParsedInput(): ParsedInput {
