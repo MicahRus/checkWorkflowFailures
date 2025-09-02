@@ -66,6 +66,9 @@ new YamlFile(project, '.github/workflows/check-workflow-failures.yml', {
       check: {
         'name': 'Check previous workflow failures',
         'runs-on': 'ubuntu-latest',
+        'env': {
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}',
+        },
         'steps': [
           {
             name: 'Checkout',
