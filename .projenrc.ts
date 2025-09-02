@@ -81,15 +81,15 @@ new YamlFile(project, '.github/workflows/check-workflow-failures.yml', {
   },
 });
 
-// project.release?.publisher.addGitHubPostPublishingSteps({
-//   name: 'Moving tag',
-//   env: {
-//     GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}',
-//     GITHUB_REPOSITORY: '${{ github.repository }}',
-//     GITHUB_REF: '${{ github.ref }}',
-//   },
-//   run: `gh release edit v${majorVersion} -R $GITHUB_REPOSITORY --target $GITHUB_REF`,
-// });
+project.release?.publisher.addGitHubPostPublishingSteps({
+  name: 'Moving tag',
+  env: {
+    GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}',
+    GITHUB_REPOSITORY: '${{ github.repository }}',
+    GITHUB_REF: '${{ github.ref }}',
+  },
+  run: `gh release edit v${majorVersion} -R $GITHUB_REPOSITORY --target $GITHUB_REF`,
+});
 
 new TextFile(project, '.nvmrc', {
   lines: [nodeVersion],
