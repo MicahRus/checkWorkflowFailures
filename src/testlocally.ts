@@ -2,7 +2,7 @@
 // process.env.GITHUB_REPOSITORY = 'MondoPower/UbiConfigurationPage';
 process.env.GITHUB_REPOSITORY = 'MondoPower/hosted-scan-service';
 
-process.env.GITHUB_TOKEN = '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';
+process.env.GITHUB_TOKEN = '';
 process.env.GITHUB_SHA = 'abc123';
 process.env.GITHUB_WORKFLOW = 'release';
 process.env.GITHUB_ACTOR = 'test-user';
