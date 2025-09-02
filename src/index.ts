@@ -30,8 +30,9 @@ export async function checkWorkflowStatus(): Promise<void> {
 
     return setOutput('has_previous_failure', 'false');
   } catch (err) {
-    console.error(JSON.stringify(err));
-    return setFailed('Failed to check the deployments for environment');
+    console.log('error', err);
+    console.log('error', JSON.stringify(err));
+    return setFailed('Failed to check the workflow status');
   }
 }
 
