@@ -53,6 +53,11 @@ project.postCompileTask.exec('ncc build --source-map --out action');
 new YamlFile(project, '.github/workflows/check-workflow-failures.yml', {
   obj: {
     name: 'check-workflow-failures',
+    permissions: {
+      actions: 'read',
+      contents: 'read',
+    },
+
     on: {
       workflow_dispatch: {}, // keep manual trigger
       schedule: [
