@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Run CheckWorkflowFailures Action
         uses: MicahRus/checkWorkflowFailures@v1
+        id: check_failures
       - name: Fail if previous failure
         if: steps.check_failures.outputs.has_previous_failure == "true"
         run: echo "❌ Previous workflow failure detected" && exit 1

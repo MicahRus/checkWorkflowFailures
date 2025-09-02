@@ -82,10 +82,11 @@ new YamlFile(project, '.github/workflows/check-workflow-failures.yml', {
           {
             name: 'Run CheckWorkflowFailures Action',
             uses: 'MicahRus/checkWorkflowFailures@v1',
+            id: 'check_failures',
           },
           {
             name: 'Fail if previous failure',
-            if: 'steps.check_failures.outputs.has_previous_failure == "true"',
+            if: 'steps.check_failures.outputs.has_previous_failure == \"true\"',
             run: 'echo "❌ Previous workflow failure detected" && exit 1',
           },
         ],
