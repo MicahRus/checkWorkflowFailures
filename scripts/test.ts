@@ -1,6 +1,5 @@
 // Set environment variables FIRST, before any imports
-// process.env.GITHUB_REPOSITORY = 'MondoPower/UbiConfigurationPage';
-process.env.GITHUB_REPOSITORY = 'MondoPower/hosted-scan-service';
+process.env.GITHUB_REPOSITORY = 'MicahRus/checkWorkflowFailures';
 
 process.env.GITHUB_TOKEN = '';
 process.env.GITHUB_SHA = 'abc123';
@@ -15,12 +14,12 @@ process.env.INPUT_GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 process.env.INPUT_COMMIT_SHA = process.env.GITHUB_SHA;
 
 // Now import after setting environment variables
-import { checkWorkflowStatus } from './index';
+import { checkWorkflowStatus } from '../src/index';
 
 async function testLocally() {
   try {
     await checkWorkflowStatus();
-    console.log('✅ Action completed successfully');
+    console.info('✅ Action completed successfully');
   } catch (error) {
     console.error('❌ Action failed:', error);
   }

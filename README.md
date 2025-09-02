@@ -9,6 +9,7 @@ A GitHub Action that checks whether a targeted workflow has been in a failed sta
 - 🎯 **Flexible Targeting**: Can check any workflow in any repository and branch
 - 📊 **Configurable Scope**: Adjustable number of workflow runs to analyze
 - 🚀 **Easy Integration**: Simple setup with minimal configuration required
+- 🧪 **Local Testing**: Built-in test script for development and debugging
 
 ## Use Cases
 
@@ -212,8 +213,36 @@ pnpm test
 
 ```bash
 # Test the action locally
-pnpm run testlocally
+pnpm run test:local
 ```
+
+### Test Script Usage
+
+The `scripts/test.ts` script allows you to test the GitHub Action locally without needing to push to a repository. This is useful for development and debugging.
+
+**⚠️ Important: GitHub Token Required**
+
+To use the test script, you need to add your GitHub token to the script. The script requires workflow permissions to access the GitHub API.
+
+1. **Get a GitHub Token:**
+
+  - Go to GitHub Settings → Developer settings → Personal access tokens
+  - Generate a new token with the following permissions:
+
+    - `workflow` (Update GitHub Action workflows)
+
+2. **Update the Test Script:**
+
+  ```typescript
+  // In scripts/test.ts, update this line:
+  process.env.GITHUB_TOKEN = 'your_github_token_here';
+  ```
+
+3. **Run the Test:**
+
+  ```bash
+  pnpm run test:local
+  ```
 
 ## Contributing
 

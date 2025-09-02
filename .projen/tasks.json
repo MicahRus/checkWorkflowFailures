@@ -198,6 +198,15 @@
         }
       ]
     },
+    "test:local": {
+      "name": "test:local",
+      "description": "Test the action locally",
+      "steps": [
+        {
+          "exec": "ts-node scripts/test.ts"
+        }
+      ]
+    },
     "unbump": {
       "name": "unbump",
       "description": "Restores version to 0.0.0",

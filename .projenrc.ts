@@ -50,6 +50,17 @@ const project = new typescript.TypeScriptProject({
 
 project.postCompileTask.exec('ncc build --source-map --out action');
 
+project.addTask('test:local', {
+  description: 'Test the action locally',
+  steps: [
+    {
+      exec: 'ts-node scripts/test.ts',
+    },
+  ],
+});
+
+project.tsconfigEslint?.addInclude('scripts');
+
 
 new YamlFile(project, '.github/workflows/check-workflow-failures.yml', {
   obj: {
