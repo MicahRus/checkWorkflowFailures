@@ -7,8 +7,8 @@ branding:
   icon: package
   color: blue
 inputs:
-  frequency:
-    description: The frequency of the check (if not provided, it will check every 7 days)
+  per_page:
+    description: The number of runs to check (if not provided, it will check the last 50 runs)
     required: false
   owner:
     description: The owner of the repository (if not provided, the current owner will be used)
@@ -17,7 +17,7 @@ inputs:
     description: The repository name (if not provided, the current repository will be used)
     required: false
   workflow_id:
-    description: The workflow that you want to check IE Release.yml
+    description: The workflow that you want to check (if not provided, it will check the release.yml workflow)
     required: true
   github_token:
     description: The GitHub token (if not provided, the environment variable GITHUB_TOKEN will be used instead)

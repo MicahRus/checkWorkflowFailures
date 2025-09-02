@@ -73,8 +73,8 @@ new YamlFile(project, 'action.yml', {
       color: 'blue',
     },
     inputs: {
-      frequency: {
-        description: 'The frequency of the check (if not provided, it will check every 7 days)',
+      per_page: {
+        description: 'The number of runs to check (if not provided, it will check the last 50 runs)',
         required: false,
       },
       owner: {
@@ -86,7 +86,7 @@ new YamlFile(project, 'action.yml', {
         required: false,
       },
       workflow_id: {
-        description: 'The workflow that you want to check IE Release.yml',
+        description: 'The workflow that you want to check (if not provided, it will check the release.yml workflow)',
         required: true,
       },
       github_token: {

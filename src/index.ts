@@ -2,33 +2,24 @@ import { getInput, setOutput, setFailed } from '@actions/core';
 import { context, getOctokit } from '@actions/github';
 import type { ParsedInput } from './types';
 
-async function getWorkflowRuns() {
-  const { token, owner, repo, workflowId, perPage } = getParsedInput();
-  const octokit = getOctokit(token);
+export async function checkWorkflowStatus(): Promise<void> {
+  try {
+    const { token, owner, repo, workflowId, perPage } = getParsedInput();
+    const octokit = getOctokit(token);
 
-  if (workflowId) {
-    return octokit.rest.actions.listWorkflowRuns({
+    const response = await octokit.rest.actions.listWorkflowRuns({
       owner,
       repo,
       per_page: perPage,
       workflow_id: workflowId,
+      branch: 'main',
     });
-  }
-
-  return octokit.rest.actions.listWorkflowRunsForRepo({
-    owner,
-    repo,
-    per_page: perPage,
-  });
-
-}
-
-export async function checkWorkflowStatus(): Promise<void> {
-  try {
-    const response = await getWorkflowRuns();
 
     for (const workflowRun of response.data.workflow_runs) {
-      if (workflowRun.conclusion === 'success' || !workflowRun.run_started_at) {
+      if (workflowRun.conclusion === 'success') {
+        return setOutput('has_previous_failure', 'false');
+      }
+      if (!workflowRun.run_started_at) {
         continue;
       }
 
@@ -54,7 +45,7 @@ function isOlderThan7Days(dateString: string | Date): boolean {
 function getParsedInput(): ParsedInput {
   const owner = context.repo.owner;
   const repo = context.repo.repo;
-  const workflowId = getInput('workflow_id', { required: false }) || '';
+  const workflowId = getInput('workflow_id', { required: false }) || 'release.yml';
   const commitSha = getInput('commit_sha', { required: false }) || context.sha;
   const token = getInput('github_token', { required: false }) || (process.env.GITHUB_TOKEN as string);
   const perPage = getInput('per_page', { required: false }) || '50';
