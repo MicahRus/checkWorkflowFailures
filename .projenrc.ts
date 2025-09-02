@@ -49,6 +49,38 @@ const project = new typescript.TypeScriptProject({
 
 project.postCompileTask.exec('ncc build --source-map --out action');
 
+
+new YamlFile(project, '.github/workflows/check-workflow-failures.yml', {
+  obj: {
+    name: 'Check Workflow Failures',
+    on: {
+      workflow_dispatch: {}, // keep manual trigger
+      schedule: [
+        {
+          // GitHub Actions cron uses UTC, AEST is UTC+10
+          cron: '0 21 * * *', // 7:00 AM AEST = 21:00 UTC previous day
+        },
+      ],
+    },
+    jobs: {
+      check: {
+        'name': 'Check previous workflow failures',
+        'runs-on': 'ubuntu-latest',
+        'steps': [
+          {
+            name: 'Checkout',
+            uses: 'actions/checkout@v3',
+          },
+          {
+            name: 'Run CheckWorkflowFailures Action',
+            uses: 'MicahRus/checkWorkflowFailures@v1.0.0',
+          },
+        ],
+      },
+    },
+  },
+});
+
 // project.release?.publisher.addGitHubPostPublishingSteps({
 //   name: 'Moving tag',
 //   env: {

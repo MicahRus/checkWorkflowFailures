@@ -46,6 +46,7 @@ jspm_packages/
 /lib
 /dist/
 !/.eslintrc.json
+!/.github/workflows/check-workflow-failures.yml
 !/.nvmrc
 !/action.yml
 !/.projenrc.ts
