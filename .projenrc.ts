@@ -154,6 +154,14 @@ new YamlFile(project, 'action.yml', {
         description: 'The branch to check (if not provided, "main" will be used)',
         required: false,
       },
+      days_to_look_back: {
+        description: 'The number of days to look back for workflow failures (if not provided, defaults to 7 days)',
+        required: false,
+      },
+      check_outside_window: {
+        description: 'Whether to check the most recent run when no runs are found within the lookback window (if not provided, defaults to true)',
+        required: false,
+      },
     },
     outputs: {
       has_active_failure: {

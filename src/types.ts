@@ -5,4 +5,6 @@ export interface ParsedInput {
   branch: string;
   token: string;
   perPage: number;
+  daysToLookBack: number;
+  checkOutsideWindow: boolean;
 }

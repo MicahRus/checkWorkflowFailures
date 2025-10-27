@@ -20,14 +20,16 @@ A GitHub Action that checks whether a targeted workflow has been in a failed sta
 
 ## Inputs
 
-Input          | Description                            | Required | Default
--------------- | -------------------------------------- | -------- | ------------------------
-`workflow_id`  | The workflow to check (filename or ID) | ✅ Yes    | `release.yml`
-`github_token` | GitHub token for API access            | ✅ Yes    | `${{ github.token }}`
-`branch`       | The branch to check                    | ❌ No     | `main`
-`per_page`     | Number of workflow runs to check       | ❌ No     | `50`
-`owner`        | Repository owner                       | ❌ No     | Current repository owner
-`repo`         | Repository name                        | ❌ No     | Current repository
+Input                   | Description                            | Required | Default
+----------------------- | -------------------------------------- | -------- | ------------------------
+`workflow_id`           | The workflow to check (filename or ID) | ✅ Yes    | `release.yml`
+`github_token`          | GitHub token for API access            | ✅ Yes    | `${{ github.token }}`
+`branch`                | The branch to check                    | ❌ No     | `main`
+`per_page`              | Number of workflow runs to check       | ❌ No     | `50`
+`days_to_look_back`     | Time period to look back in days       | ❌ No     | `7`
+`check_outside_window`  | Check most recent run when no runs found within lookback window (only `true` or `false`) | ❌ No | `true`
+`owner`                 | Repository owner                       | ❌ No     | Current repository owner
+`repo`                  | Repository name                        | ❌ No     | Current repository
 
 ## Outputs
 
@@ -99,6 +101,105 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           per_page: 25
 ```
+
+### Custom Lookback Period Example
+
+```yaml
+name: Monitor with Custom Time Periods
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'  # Every 4 hours
+
+jobs:
+  check-critical-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Critical Workflow (1 day lookback)
+        uses: MicahRus/check-workflow-failures@v0.0.0
+        with:
+          workflow_id: 'critical-deploy.yml'
+          branch: 'main'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          days_to_look_back: 1  # 1 day
+
+  check-standard-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Standard Workflow (3 day lookback)
+        uses: MicahRus/check-workflow-failures@v0.0.0
+        with:
+          workflow_id: 'standard-deploy.yml'
+          branch: 'main' 
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          days_to_look_back: 3  # 3 days
+
+  check-non-critical-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Non-Critical Workflow (14 day lookback)
+        uses: MicahRus/check-workflow-failures@v0.0.0
+        with:
+          workflow_id: 'docs-deploy.yml'
+          branch: 'main'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          days_to_look_back: 14  # 14 days
+```
+
+#### Common Time Periods (in days)
+
+Time Period | Days
+----------- | ----
+0.25 hours  | `0.01`
+6 hours     | `0.25`
+12 hours    | `0.5`
+1 day       | `1`
+3 days      | `3`
+7 days      | `7` (default)
+14 days     | `14`
+30 days     | `30`
+
+### Outside Window Check Examples
+
+```yaml
+name: Strict Window Monitoring
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'  # Every 2 hours
+
+jobs:
+  strict-monitoring:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Workflow (Strict - only within window)
+        uses: MicahRus/check-workflow-failures@v0.0.0
+        with:
+          workflow_id: 'critical-deploy.yml'
+          branch: 'main'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          days_to_look_back: 1             # 1 day
+          check_outside_window: false      # Don't check outside the 1-day window
+
+  lenient-monitoring:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Workflow (Lenient - fallback to most recent)
+        uses: MicahRus/check-workflow-failures@v0.0.0
+        with:
+          workflow_id: 'standard-deploy.yml'
+          branch: 'main'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          days_to_look_back: 1             # 1 day
+          check_outside_window: true       # Check most recent run if no runs in 1 day (default)
+```
+
+#### Use Cases for `check_outside_window`:
+
+- **`true` (default)**: Good for general monitoring where you want to know about any workflow issues
+- **`false`**: Useful when you only care about recent activity and want to ignore old failures
+
+**Note**: Only the values `true` and `false` (case-insensitive) are accepted.
 
 ```yaml
 name: Monitor workflow with alerting
