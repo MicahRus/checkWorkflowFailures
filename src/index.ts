@@ -20,24 +20,24 @@ export async function checkWorkflowStatus(): Promise<void> {
       return setOutput('has_previous_failure', 'false');
     }
 
-    // Check for success first (most common case)
-    const hasSuccess = workflowRuns.some(run => run.conclusion === 'success');
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+
+    // Filter out everything over 7 days old
+    const recentWorkflowRuns = workflowRuns.filter(run => run.run_started_at && Date.now() - new Date(run.run_started_at).getTime() <= sevenDaysMs);
+
+    // If we have nothing in the last 7 days, just check the most recent run
+    if (recentWorkflowRuns.length === 0) {
+      return setOutput('has_previous_failure', workflowRuns[0].conclusion === 'success' ? 'false' : 'true');
+    }
+
+    // Check for success first
+    const hasSuccess = recentWorkflowRuns.some(run => run.conclusion === 'success');
     if (hasSuccess) {
       return setOutput('has_previous_failure', 'false');
     }
 
-    // Check for persistent failures
-    const now = Date.now();
-    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-
-    const hasPersistentFailure = workflowRuns.some(run => {
-      if (!run.run_started_at) {
-        return false;
-      }
-      return (now - new Date(run.run_started_at).getTime()) >= sevenDaysMs;
-    });
-
-    return setOutput('has_previous_failure', hasPersistentFailure.toString());
+    // If we have not had a success in 7 days, we are in a failed state
+    return setOutput('has_previous_failure', 'true');
   } catch (err) {
     console.error('Error checking workflow status:', err);
     return setFailed('Failed to check the workflow status');

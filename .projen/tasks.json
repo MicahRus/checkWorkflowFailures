@@ -194,6 +194,10 @@
       "description": "Run tests",
       "steps": [
         {
+          "exec": "jest --passWithNoTests --updateSnapshot",
+          "receiveArgs": true
+        },
+        {
           "spawn": "eslint"
         }
       ]
@@ -204,6 +208,15 @@
       "steps": [
         {
           "exec": "ts-node scripts/test.ts"
+        }
+      ]
+    },
+    "test:watch": {
+      "name": "test:watch",
+      "description": "Run jest in watch mode",
+      "steps": [
+        {
+          "exec": "jest --watch"
         }
       ]
     },
@@ -232,13 +245,13 @@
       },
       "steps": [
         {
-          "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@types/babel__core,@types/node,@vercel/ncc,eslint-import-resolver-typescript,eslint-plugin-import,projen,ts-node,typescript,@actions/core,@actions/github"
+          "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@types/babel__core,@types/jest,@types/node,@vercel/ncc,eslint-import-resolver-typescript,eslint-plugin-import,jest,projen,ts-jest,ts-node,typescript,@actions/core,@actions/github"
         },
         {
           "exec": "pnpm i --no-frozen-lockfile"
         },
         {
-          "exec": "pnpm update @stylistic/eslint-plugin @types/babel__core @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser @vercel/ncc commit-and-tag-version constructs eslint-import-resolver-typescript eslint-plugin-import eslint projen ts-node typescript @actions/core @actions/github"
+          "exec": "pnpm update @stylistic/eslint-plugin @types/babel__core @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser @vercel/ncc commit-and-tag-version constructs eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit projen ts-jest ts-node typescript @actions/core @actions/github"
         },
         {
           "exec": "npx projen"

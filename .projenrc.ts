@@ -33,7 +33,7 @@ const project = new typescript.TypeScriptProject({
   ],
   workflowNodeVersion: nodeVersion,
   publishTasks: false,
-  jest: false,
+  jest: true,
   sampleCode: false,
   tsconfig: {
     compilerOptions: {
