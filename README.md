@@ -209,13 +209,6 @@ pnpm test
 
 ### Project Structure
 
-### Local Testing
-
-```bash
-# Test the action locally
-pnpm run test:local
-```
-
 ### Test Script Usage
 
 The `scripts/test.ts` script allows you to test the GitHub Action locally without needing to push to a repository. This is useful for development and debugging.
