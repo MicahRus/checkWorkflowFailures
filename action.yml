@@ -32,7 +32,7 @@ inputs:
     description: Whether to check the most recent run when no runs are found within the lookback window (if not provided, defaults to true)
     required: false
 outputs:
-  has_active_failure:
+  has_previous_failure:
     description: True/False to represent if the workflow has been in a failed state for a set period of time
 runs:
   using: node20

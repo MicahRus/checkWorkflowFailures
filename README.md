@@ -5,7 +5,7 @@ A GitHub Action that checks whether a targeted workflow has been in a failed sta
 ## Features
 
 - 🔍 **Workflow Failure Detection**: Identifies workflows that have been failing for extended periods
-- ⏰ **Time-based Analysis**: Checks if failures have persisted for 7 days or more
+- ⏰ **Time-based Analysis**: Checks if failures have persisted for a configurable time period (default: 7 days)
 - 🎯 **Flexible Targeting**: Can check any workflow in any repository and branch
 - 📊 **Configurable Scope**: Adjustable number of workflow runs to analyze
 - 🚀 **Easy Integration**: Simple setup with minimal configuration required
@@ -27,7 +27,7 @@ Input                   | Description                            | Required | De
 `branch`                | The branch to check                    | ❌ No     | `main`
 `per_page`              | Number of workflow runs to check       | ❌ No     | `50`
 `days_to_look_back`     | Time period to look back in days       | ❌ No     | `7`
-`check_outside_window`  | Check most recent run when no runs found within lookback window (only `true` or `false`) | ❌ No | `true`
+`check_outside_window`  | Check most recent run when no runs found within lookback window (accepts `true`/`false`, case-insensitive) | ❌ No | `true`
 `owner`                 | Repository owner                       | ❌ No     | Current repository owner
 `repo`                  | Repository name                        | ❌ No     | Current repository
 
@@ -35,7 +35,7 @@ Input                   | Description                            | Required | De
 
 Output                 | Description
 ---------------------- | ------------------------------------------------------------------
-`has_previous_failure` | `true` if workflow has been failing for 7+ days, `false` otherwise
+`has_previous_failure` | `true` if workflow has been failing for the defined period of time, `false` otherwise
 
 ## Usage
 
@@ -63,7 +63,7 @@ jobs:
       - name: Handle Persistent Failures
         if: steps.check-failures.outputs.has_previous_failure == 'true'
         run: |
-          echo "Workflow has been failing for 7+ days!"
+          echo "Workflow has been failing for the configured time period!"
           # Add your failure handling logic here
 ```
 
@@ -199,28 +199,29 @@ jobs:
 - **`true` (default)**: Good for general monitoring where you want to know about any workflow issues
 - **`false`**: Useful when you only care about recent activity and want to ignore old failures
 
-**Note**: Only the values `true` and `false` (case-insensitive) are accepted.
+**Note**: Accepts `true` and `false` (case-insensitive). Any other value will be treated as `false`. Empty or unspecified defaults to `true`.
 
 ```yaml
 name: Monitor workflow with alerting
 
-on: schedule:
+on:
+  schedule:
+    - cron: '0 9 * * *'  # Daily at 9 AM
+  workflow_dispatch:
 
-- cron: '0 9 * * *'  # Daily at 9 AM
-
-workflow_dispatch:
-
-jobs: check-failures: runs-on: ubuntu-latest steps:
-
-- name: Check for Active Workflow Failures
-    uses: MicahRus/check-workflow-failures@v0.0.0
-    with:
-      workflow_id: 'release.yml'
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+jobs:
+  check-failures:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for Active Workflow Failures
+        uses: MicahRus/check-workflow-failures@v0.0.0
+        with:
+          workflow_id: 'release.yml'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   slack-notification:
     name: HostedScanService CI Notification
-    needs: deploy
+    needs: check-failures
     runs-on: ubuntu-latest
     permissions:
       checks: read
@@ -274,14 +275,14 @@ jobs:
 
 1. **Workflow Analysis**: The action fetches the specified number of recent workflow runs from the specified branch
 2. **Failure Detection**: It examines each run's conclusion and start time
-3. **Time Calculation**: If a workflow has failed, it checks if the failure has persisted for 7 days or more
+3. **Time Calculation**: If a workflow has failed, it checks if the failure has persisted for the configured time period
 4. **Output Generation**: Returns `true` if there's a persistent failure, `false` otherwise
 
 ### Logic Flow
 
 - ✅ **Success Found**: If any recent run succeeded, returns `false` (no persistent failure)
-- ❌ **Recent Failure**: If failure is less than 7 days old, continues checking
-- ⏰ **Persistent Failure**: If failure is 7+ days old, returns `true`
+- ❌ **Recent Failure**: If failure is within the configured time period, continues checking
+- ⏰ **Persistent Failure**: If failure exceeds the configured time period, returns `true`
 - 🔍 **Default**: If no clear pattern, returns `false`
 
 ## Development

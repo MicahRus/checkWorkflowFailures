@@ -164,7 +164,7 @@ new YamlFile(project, 'action.yml', {
       },
     },
     outputs: {
-      has_active_failure: {
+      has_previous_failure: {
         description: 'True/False to represent if the workflow has been in a failed state for a set period of time',
       },
     },
